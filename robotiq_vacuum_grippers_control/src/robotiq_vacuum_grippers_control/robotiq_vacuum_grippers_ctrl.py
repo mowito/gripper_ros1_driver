@@ -5,6 +5,7 @@ from robotiq_vacuum_grippers_control.msg import RobotiqVacuumGrippers_robot_outp
 from robotiq_vacuum_grippers_control.srv import gripper_cmd,gripper_cmdResponse
  
 import std_srvs
+from std_srvs.srv import SetBool,SetBoolResponse
 from std_srvs.srv import Empty,EmptyResponse
 import rospy
 import numpy as np
@@ -20,6 +21,7 @@ class RobotiqVGripper(object):
                                            self._status_cb)
         self.cmd_pub = rospy.Publisher(
             'RobotiqVacuumGrippersRobotOutput', outputMsg,queue_size=10)
+        self.release_try_limit = 10
 
     def _status_cb(self, msg):
         self.cur_status = msg
@@ -163,38 +165,61 @@ class RobotiqVGripper(object):
         return self.goto(-1.0, rdel, mrprl, block=block, timeout=timeout)
 
 def callbackOn(req):
-    print("waiting...")
+    print("[robotiq_vacuum_grippers_ctrl] turning gripper on ")    
     gripper = RobotiqVGripper()
     gripper.wait_for_connection()
     if gripper.is_reset():
         gripper.reset()
         gripper.activate()
-    print(gripper.open())
-    return EmptyResponse();
+    gripper.close() 
+    rospy.sleep(0.05)
+    gripper.open()    
+    response = EmptyResponse()
+    return response
 
 def callbackOff(req):
-    print("waiting...")
+    print("[robotiq_vacuum_grippers_ctrl] turning gripper off")
     gripper = RobotiqVGripper()
+    release_try_count=0    
     gripper.wait_for_connection()
+
     if gripper.is_reset():
         gripper.reset()
-        gripper.activate()
-    print(gripper.close())
-    return EmptyResponse();
+        gripper.activate() 
+    gripper.open()
+    rospy.sleep(0.05)
+    gripper.close()
+    rospy.sleep(0.1)
+    while(gripper.object_detected() and release_try_count<10):
+        gripper.close()
+        release_try_count=release_try_count+1
+    if(release_try_count>=10):
+        print("[ERROR]release failed possible communication problem")
+    response = EmptyResponse()
+    return response
+    
 
+def callbackGripperStatus(req):
+    returnVal= SetBoolResponse()
+    gripper = RobotiqVGripper()
+    gripper.wait_for_connection()
 
-
-
+    if gripper.is_reset():
+        gripper.reset()
+        gripper.activate() 
+    print("getting gripper status")
+    returnVal.success = gripper.object_detected() 
+    print("[robotiq_vacuum_grippers_ctrl] Object detected "+str(gripper.object_detected()))
+    return returnVal
+    
 def main():
-    rospy.init_node("robotiq_vacuum_grippers_ctrl_test")
+    rospy.init_node("robotiq_vacuum_grippers_ctrl")
 
-    s = rospy.Service('/on', std_srvs.srv.Empty, callbackOn)
-    s = rospy.Service('/off', std_srvs.srv.Empty, callbackOff)
+
+    serviceOn = rospy.Service('/on', std_srvs.srv.Empty, callbackOn)
+    serviceOff = rospy.Service('/off', std_srvs.srv.Empty, callbackOff)
+    serviceObjectDetected = rospy.Service('/grip_status', std_srvs.srv.SetBool, callbackGripperStatus)
     rospy.spin()
-
-
-
-
 
 if __name__ == '__main__':
     main()
