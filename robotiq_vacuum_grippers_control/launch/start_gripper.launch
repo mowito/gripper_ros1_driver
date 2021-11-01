@@ -1,0 +1,14 @@
+<launch>
+	<!-- launches all the gripper related stuff -->
+	<!-- maintainer: Safar -->
+
+	<!-- launch the comm node -->
+	
+
+	<node pkg="robotiq_vacuum_grippers_control" type="RobotiqVacuumGrippersRtuNode.py" name="RobotiqVacuumGrippersRtuNode" args="/dev/ttyTool"/>
+
+	<!-- launch the controller -->
+
+	<node pkg="robotiq_vacuum_grippers_control" type="robotiq_vacuum_grippers_ctrl.py" name="robotiq_vacuum_grippers_ctrl" args="/dev/ttyTool"/>
+
+</launch>   

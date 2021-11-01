@@ -22,7 +22,9 @@ class RobotiqVGripper(object):
         self.cmd_pub = rospy.Publisher(
             'RobotiqVacuumGrippersRobotOutput', outputMsg,queue_size=10)
         self.release_try_limit = 10
-
+        self.timeoutSmall = 0.05
+        self.timeoutLarge = 1.5
+        self.timeoutminimum=0.005
     def _status_cb(self, msg):
         self.cur_status = msg
 
@@ -155,45 +157,54 @@ class RobotiqVGripper(object):
         return True
 
     def open(self, rdel=0.1, mrprl=100, block=False, timeout=-1):
-        if self.is_opened():
+        if self.is_opened():            
             return True
+        print("Gripper on")
         return self.goto(1.0, rdel, mrprl, block=block, timeout=timeout)
 
     def close(self, rdel=0.1, mrprl=100, block=False, timeout=-1):
         if self.is_closed():
             return True
+        print("Gripper off")
         return self.goto(-1.0, rdel, mrprl, block=block, timeout=timeout)
 
 def callbackOn(req):
     print("[robotiq_vacuum_grippers_ctrl] turning gripper on ")    
     gripper = RobotiqVGripper()
+    grip_try_count=0  
+    release_try_count=0
     gripper.wait_for_connection()
     if gripper.is_reset():
         gripper.reset()
         gripper.activate()
-    gripper.close() 
-    rospy.sleep(0.05)
-    gripper.open()    
+    
+    while(release_try_count<gripper.release_try_limit and gripper.close()==False):
+        release_try_count=release_try_count+1
+        
+    while(grip_try_count<gripper.release_try_limit and gripper.open()==False):
+        grip_try_count=grip_try_count+1          
+    rospy.sleep(gripper.timeoutLarge)  
     response = EmptyResponse()
     return response
 
 def callbackOff(req):
     print("[robotiq_vacuum_grippers_ctrl] turning gripper off")
+
     gripper = RobotiqVGripper()
     release_try_count=0    
     gripper.wait_for_connection()
 
     if gripper.is_reset():
         gripper.reset()
-        gripper.activate() 
-    gripper.open()
-    rospy.sleep(0.05)
-    gripper.close()
-    rospy.sleep(0.1)
-    while(gripper.object_detected() and release_try_count<10):
-        gripper.close()
+        gripper.activate()  
+    gripper.close()   
+    
+    rospy.sleep(gripper.timeoutSmall)
+    while(release_try_count<gripper.release_try_limit and gripper.object_detected()):
         release_try_count=release_try_count+1
-    if(release_try_count>=10):
+        gripper.close()
+        
+    if(release_try_count>=gripper.release_try_limit):
         print("[ERROR]release failed possible communication problem")
     response = EmptyResponse()
     return response
