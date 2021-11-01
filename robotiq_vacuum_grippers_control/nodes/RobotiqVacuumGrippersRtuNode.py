@@ -58,7 +58,7 @@ def mainLoop(device):
 
     #We connect to the address received as an argument
     gripper.client.connectToDevice(device)
-    print("yaay")
+    print("Connection established.")
 
     rospy.init_node('robotiqVacuumGrippers')
 
