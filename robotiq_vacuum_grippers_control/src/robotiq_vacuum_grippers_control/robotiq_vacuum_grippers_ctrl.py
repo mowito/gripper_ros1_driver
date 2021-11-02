@@ -30,8 +30,8 @@ class RobotiqVGripper(object):
         self.off_count_pub = rospy.Publisher('/off_service_count', Int16, queue_size=10)
         self.on_count = 0
         self.off_count = 0
-        serviceOn = rospy.Service('/on', std_srvs.srv.Empty, self.callbackOn)
-        serviceOff = rospy.Service('/off', std_srvs.srv.Empty, self.callbackOff)    
+        serviceOn = rospy.Service('/on', std_srvs.srv.SetBool, self.callbackOn)
+        serviceOff = rospy.Service('/off', std_srvs.srv.SetBool, self.callbackOff)    
 
         serviceObjectDetected = rospy.Service('/grip_status', std_srvs.srv.SetBool,self.callbackGripperStatus)
     def _status_cb(self, msg):
@@ -195,7 +195,8 @@ class RobotiqVGripper(object):
         while(grip_try_count<self.release_try_limit and self.open()==False):
             grip_try_count=grip_try_count+1          
         rospy.sleep(self.timeoutLarge)  
-        response = EmptyResponse()
+        response = SetBoolResponse()
+        response.success=True
         return response
 
     def callbackOff(self,req):
@@ -220,11 +221,12 @@ class RobotiqVGripper(object):
         
         if(release_try_count>=self.release_try_limit):
            print("[ERROR]release failed possible communication problem")
-        response = EmptyResponse()
+        response = SetBoolResponse()
+        response.success=True
         return response
     
 
-    def callbackGripperStatus(req):
+    def callbackGripperStatus(self,req):
         returnVal= SetBoolResponse()
         self.wait_for_connection()
 
