@@ -41,14 +41,12 @@ ROS node for controling a Robotiq vacuum gripper using the Modbus RTU protocol.
 The script takes as an argument the IP address of the gripper. It initializes a baseRobotiqVacuumGrippers object and adds a comModbusTcp client to it. It then loops forever, reading the gripper status and updating its command. The gripper status is published on the 'RobotiqVacuumGrippersRobotInput' topic using the 'RobotiqVacuumGrippers_robot_input' msg type. The node subscribes to the 'RobotiqVacuumGrippersRobotOutput' topic for new commands using the 'RobotiqVacuumGrippers_robot_output' msg type. Examples are provided to control the gripper (RobotiqVacuumGrippersSimpleController.py) and interpreting its status (RobotiqVacuumGrippersStatusListener.py).
 """
 
-import roslib; roslib.load_manifest('robotiq_vacuum_grippers_control')
-roslib.load_manifest('robotiq_modbus_rtu')
 import rospy
 import robotiq_vacuum_grippers_control.baseRobotiqVacuumGrippers
 import robotiq_modbus_rtu.comModbusRtu
 import os, sys
-from robotiq_vacuum_grippers_control.msg import _RobotiqVacuumGrippers_robot_input  as inputMsg
-from robotiq_vacuum_grippers_control.msg import _RobotiqVacuumGrippers_robot_output as outputMsg
+from robotiq_vacuum_grippers_control.msg import _RobotiqVacuumGrippersRobotInput  as inputMsg
+from robotiq_vacuum_grippers_control.msg import _RobotiqVacuumGrippersRobotOutput as outputMsg
 
 def mainLoop(device):
     

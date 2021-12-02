@@ -1,8 +1,7 @@
 # http://ros.org/doc/groovy/api/catkin/html/user_guide/supposed.html
-cmake_minimum_required(VERSION 2.8.3)
-project(robotiq_vacuum_grippers_control)
-find_package(catkin REQUIRED COMPONENTS roscpp rospy message_generation)
 
+cmake_minimum_required(VERSION 3.5)
+project(robotiq_vacuum_grippers_control)
 
 #set the default path for built executables to the "bin" directory
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
@@ -12,51 +11,12 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 ###################################
 ## catkin message generation     ##
 ###################################
-add_message_files(
-  FILES
-  RobotiqVacuumGrippers_robot_input.msg
-  RobotiqVacuumGrippers_robot_output.msg
-)
-add_service_files(
-  FILES
-  gripper_cmd.srv
-)
-catkin_python_setup()
 
-generate_messages()
+find_package(rosidl_default_generators REQUIRED)
 
-###################################
-## catkin specific configuration ##
-###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## LIBRARIES: libraries you create in this project that dependent projects also need
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
-    CATKIN_DEPENDS rospy message_runtime roscpp robotiq_ethercat
-    INCLUDE_DIRS include
-)
-
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  rospy
-  std_msgs
-  message_generation
-)
-
-include_directories(include)
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-  ${robotiq_ethercat_INCLUDE_DIRS}
-)
-
-#############
-## Install ##
-#############
-
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/groovy/api/catkin/html/adv_user_guide/variables.html
-
-install(PROGRAMS nodes/RobotiqVacuumGrippersRtuNode.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
-
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/RobotiqVacuumGrippers_robot_input.msg"
+  "msg/RobotiqVacuumGrippers_robot_output"
+  "srv/AddThreeInts.srv"
+  "srv/GripperCmd.srv"
+ )

@@ -41,14 +41,12 @@ ROS node for controling a Robotiq vacuum gripper using the Modbus RTU protocol.
 The script takes as an argument the IP address of the gripper. It initializes a baseRobotiqVacuumGrippers object and adds a comModbusTcp client to it. It then loops forever, reading the gripper status and updating its command. The gripper status is published on the 'RobotiqVacuumGrippersRobotInput' topic using the 'RobotiqVacuumGrippers_robot_input' msg type. The node subscribes to the 'RobotiqVacuumGrippersRobotOutput' topic for new commands using the 'RobotiqVacuumGrippers_robot_output' msg type. Examples are provided to control the gripper (RobotiqVacuumGrippersSimpleController.py) and interpreting its status (RobotiqVacuumGrippersStatusListener.py).
 """
 
-import roslib; roslib.load_manifest('robotiq_vacuum_grippers_control')
-roslib.load_manifest('robotiq_modbus_rtu')
-import rospy
+import rclpy
 import robotiq_vacuum_grippers_control.baseRobotiqVacuumGrippers
 import robotiq_modbus_rtu.comModbusRtu
 import os, sys
-from robotiq_vacuum_grippers_control.msg import _RobotiqVacuumGrippers_robot_input  as inputMsg
-from robotiq_vacuum_grippers_control.msg import _RobotiqVacuumGrippers_robot_output as outputMsg
+from robotiq_vacuum_grippers_control.msg import _RobotiqVacuumGrippersRobotInput  as inputMsg
+from robotiq_vacuum_grippers_control.msg import _RobotiqVacuumGrippersRobotOutput as outputMsg
 
 def mainLoop(device):
     
@@ -59,18 +57,20 @@ def mainLoop(device):
     #We connect to the address received as an argument
     gripper.client.connectToDevice(device)
     print("Connection established.")
+    
+    rclpy.init(device)
 
-    rospy.init_node('robotiqVacuumGrippers')
+    node = rclpy.create_node('robotiqVacuumGrippers')
 
     #The Gripper status is published on the topic named 'RobotiqVacuumGrippersRobotInput'
-    pub = rospy.Publisher('RobotiqVacuumGrippersRobotInput', inputMsg.RobotiqVacuumGrippers_robot_input,queue_size=10)
+    pub =  node.create_publisher(inputMsg.RobotiqVacuumGrippers_robot_input, 'RobotiqVacuumGrippersRobotInput')
 
     #The Gripper command is received from the topic named 'RobotiqVacuumGrippersRobotOutput'
-    rospy.Subscriber('RobotiqVacuumGrippersRobotOutput', outputMsg.RobotiqVacuumGrippers_robot_output, gripper.refreshCommand)
-    
+    sub =  rclpy.create_subscription(outputMsg.RobotiqVacuumGrippers_robot_output, 'RobotiqVacuumGrippersRobotOutput', gripper.refreshCommand) 
+    assert sub
 
     #We loop
-    while not rospy.is_shutdown():
+    while not rclpy.ok():
 
       #Get and publish the Gripper status
       status = gripper.getStatus()
@@ -89,4 +89,4 @@ if __name__ == '__main__':
     try:
         
         mainLoop(sys.argv[1])
-    except rospy.ROSInterruptException: pass
+    except rclpy.ROSInterruptException: pass

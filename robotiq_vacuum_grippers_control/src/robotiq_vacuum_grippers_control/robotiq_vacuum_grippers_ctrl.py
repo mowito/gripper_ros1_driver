@@ -1,48 +1,48 @@
 #!/usr/bin/env python3
 
-from robotiq_vacuum_grippers_control.msg import RobotiqVacuumGrippers_robot_input as inputMsg
-from robotiq_vacuum_grippers_control.msg import RobotiqVacuumGrippers_robot_output as outputMsg
-from robotiq_vacuum_grippers_control.srv import gripper_cmd,gripper_cmdResponse
+from robotiq_vacuum_grippers_control.msg import RobotiqVacuumGrippersRobotInput as inputMsg
+from robotiq_vacuum_grippers_control.msg import RobotiqVacuumGrippersRobotOutput as outputMsg
+from robotiq_vacuum_grippers_control.srv import GripperCmd,GripperCmdResponse
  
 import std_srvs
 from std_srvs.srv import SetBool,SetBoolResponse
 from std_srvs.srv import Empty,EmptyResponse
-import rospy
+import rclpy
+from rclpy.node import Node
 import numpy as np
 from std_msgs.msg import String
-import roslib
-roslib.load_manifest('robotiq_vacuum_grippers_control')
 from std_msgs.msg import Int16
 
 
-class RobotiqVGripper(object):
+class RobotiqVGripper(Node):
     def __init__(self):
+        super().__init__('RobotiqVGripper')
         self.cur_status = None
-        self.status_sub = rospy.Subscriber('RobotiqVacuumGrippersRobotInput', inputMsg,
-                                           self._status_cb)
-        self.cmd_pub = rospy.Publisher(
-            'RobotiqVacuumGrippersRobotOutput', outputMsg,queue_size=10)
+        self.status_sub =  self.create_subscription( inputMsg, 'RobotiqVacuumGrippersRobotInput', self._status_cb)
+        assert self.status_sub
+        self.cmd_pub =  self.create_publisher(outputMsg, 'RobotiqVacuumGrippersRobotOutput')
         self.release_try_limit = 10
         self.timeoutSmall = 0.05
         self.timeoutLarge = 1.5
         self.timeoutminimum=0.005
-        self.on_count_pub = rospy.Publisher('/on_service_count', Int16, queue_size=10)
-        self.off_count_pub = rospy.Publisher('/off_service_count', Int16, queue_size=10)
+        self.on_count_pub =  self.create_publisher(Int16, '/on_service_count')
+        self.off_count_pub = self.create_publisher(Int16, '/off_service_count')
         self.on_count = 0
         self.off_count = 0
-        serviceOn = rospy.Service('/on', std_srvs.srv.SetBool, self.callbackOn)
-        serviceOff = rospy.Service('/off', std_srvs.srv.SetBool, self.callbackOff)    
+        serviceOn =  self.create_service(std_srvs.srv.SetBool, '/on', self.callbackOn) 
+        serviceOff =  self.create_service(std_srvs.srv.SetBool, '/off', self.callbackOff)    
 
-        serviceObjectDetected = rospy.Service('/grip_status', std_srvs.srv.SetBool,self.callbackGripperStatus)
+        serviceObjectDetected = self.create_service(std_srvs.srv.SetBool, '/grip_status', self.callbackGripperStatus)
     def _status_cb(self, msg):
         self.cur_status = msg
 
     def wait_for_connection(self, timeout=-1):
-        rospy.sleep(0.1)
-        r = rospy.Rate(30)
-        start_time = rospy.get_time()
-        while not rospy.is_shutdown():
-            if (timeout >= 0. and rospy.get_time() - start_time > timeout):
+        rate = self.create_rate(0.1)
+        rate.sleep()
+        r = self.create_rate(30)
+        start_time = self.get_clock().now()
+        while rclpy.ok():
+            if (timeout >= 0. and self.get_clock().now() - start_time > timeout):
                 return False
             if self.cur_status is not None:
                 return True
@@ -84,10 +84,10 @@ class RobotiqVGripper(object):
     # if timeout is negative, wait forever
 
     def wait_until_stopped(self, timeout=-1):
-        r = rospy.Rate(30)
-        start_time = rospy.get_time()
-        while not rospy.is_shutdown():
-            if (timeout >= 0. and rospy.get_time() - start_time > timeout) or self.is_reset():
+        r = self.create_rate(30)
+        start_time = self.get_clock().now()
+        while rclpy.ok() :
+            if (timeout >= 0. and self.get_clock().now() - start_time > timeout) or self.is_reset():
                 return False
             if self.is_stopped():
                 return True
@@ -95,10 +95,10 @@ class RobotiqVGripper(object):
         return False
 
     def wait_until_moving(self, timeout=-1):
-        r = rospy.Rate(30)
-        start_time = rospy.get_time()
-        while not rospy.is_shutdown():
-            if (timeout >= 0. and rospy.get_time() - start_time > timeout) or self.is_reset():
+        r = self.create_rate(30)
+        start_time = self.get_clock().now()
+        while rclpy.ok:
+            if (timeout >= 0. and self.get_clock().now() - start_time > timeout) or self.is_reset():
                 return False
             if not self.is_stopped():
                 return True
@@ -119,10 +119,10 @@ class RobotiqVGripper(object):
         cmd.rSP = 150
         cmd.rFR = 50
         self.cmd_pub.publish(cmd)
-        r = rospy.Rate(30)
-        start_time = rospy.get_time()
-        while not rospy.is_shutdown():
-            if timeout >= 0. and rospy.get_time() - start_time > timeout:
+        r = self.create_rate(30)
+        start_time = self.get_clock().now()
+        while rclpy.ok():
+            if timeout >= 0. and self.get_clock().now() - start_time > timeout:
                 return False
             if self.is_ready():
                 return True
@@ -148,7 +148,8 @@ class RobotiqVGripper(object):
         cmd.rSP = int(np.clip(255./(0.1-0.013) * (rdel-0.013), 0, 255))
         cmd.rFR = int(np.clip(255./(100.-30.) * (mrprl-30.), 0, 255))
         self.cmd_pub.publish(cmd)
-        rospy.sleep(0.1)
+        rate = self.create_rate(0.1)
+        rate.sleep(0.1)
         if block:
             if not self.wait_until_moving(timeout):
                 return False
@@ -160,7 +161,8 @@ class RobotiqVGripper(object):
         cmd.rACT = 1
         cmd.rGTO = 0
         self.cmd_pub.publish(cmd)
-        rospy.sleep(0.1)
+        rate = self.create_rate(0.1)
+        rate.sleep(0.1)
         if block:
             return self.wait_until_stopped(timeout)
         return True
@@ -193,8 +195,9 @@ class RobotiqVGripper(object):
             release_try_count=release_try_count+1
         
         while(grip_try_count<self.release_try_limit and self.open()==False):
-            grip_try_count=grip_try_count+1          
-        rospy.sleep(self.timeoutLarge)  
+            grip_try_count=grip_try_count+1   
+        rate = self.create_timer(self.timeoutLarge)       
+        rate.sleep()  
         response = SetBoolResponse()
         response.success=True
         return response
@@ -214,7 +217,8 @@ class RobotiqVGripper(object):
             self.activate()  
         self.close()   
         
-        rospy.sleep(self.timeoutSmall)
+        rate = self.create_timer(self.timeoutSmall)       
+        rate.sleep()  
         while(release_try_count<self.release_try_limit and self.object_detected()):
             release_try_count=release_try_count+1
             self.close()
@@ -238,11 +242,11 @@ class RobotiqVGripper(object):
         print("[robotiq_vacuum_grippers_ctrl] Object detected "+str(self.object_detected()))
         return returnVal
     
-def main():
-    rospy.init_node("robotiq_vacuum_grippers_ctrl")
+def main(args = None):
+    rclpy.init(args = args)
+    
     gripper=RobotiqVGripper()    
     
-    rospy.spin()
-
+    rclpy.spin(gripper)
 if __name__ == '__main__':
     main()

@@ -97,7 +97,7 @@ class communication:
           #     except TypeError as e:
           #       print(e)
 
-
+ 
       #Instantiate output as an empty list
       output = []
 
