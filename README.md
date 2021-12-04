@@ -10,3 +10,9 @@
 - cd ..
 - colcon build
 ```
+## Launch instructions
+
+```
+- source install/setup.bash
+- ros2 launch robotiq_vacuum_grippers_control start_gripper.launch.py
+```
