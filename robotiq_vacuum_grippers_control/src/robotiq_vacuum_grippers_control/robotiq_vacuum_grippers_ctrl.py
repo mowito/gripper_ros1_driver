@@ -220,7 +220,7 @@ class RobotiqVGripper(object):
             self.close()
         
         if(release_try_count>=self.release_try_limit):
-           print("[ERROR]release failed possible communication problem")
+           rospy.loginfo("[ERROR]release failed possible communication problem")
         response = SetBoolResponse()
         response.success=True
         return response
@@ -229,13 +229,18 @@ class RobotiqVGripper(object):
     def callbackGripperStatus(self,req):
         returnVal= SetBoolResponse()
         self.wait_for_connection()
-
+        polling_timeout=0;
         if self.is_reset():
             self.reset()
             self.activate() 
-        print("getting gripper status")
-        returnVal.success = self.object_detected() 
-        print("[robotiq_vacuum_grippers_ctrl] Object detected "+str(self.object_detected()))
+        rospy.loginfo("getting gripper status")
+        while(polling_timeout<self.release_try_limit):
+            polling_timeout=polling_timeout+1
+            returnVal.success = self.object_detected()
+            if(returnVal.success):
+                break
+
+        rospy.loginfo("[robotiq_vacuum_grippers_ctrl] Object detected "+str(self.object_detected()))
         return returnVal
     
 def main():
