@@ -3,13 +3,10 @@
 	<!-- maintainer: Safar -->
 
 	<!-- launch the comm node -->
-	<!--save_image_toggle to save images used for inference in root dir-->
     <arg name="callback_timeout" default="1.5" />
 
 	<node pkg="robotiq_vacuum_grippers_control" type="RobotiqVacuumGrippersRtuNode.py" name="RobotiqVacuumGrippersRtuNode" args="/dev/ttyTool"/>
-	<!--  <rosparam command="load" file="$(find robotiq_vacuum_grippers_control)/config/ros1_bridge_config.yaml"/> -->
-	
-	
+	<!--  <rosparam command="load" file="$(find robotiq_vacuum_grippers_control)/config/ros1_bridge_config.yaml"/> -->	
 
 	<!-- launch the controller -->
 	<node pkg="robotiq_vacuum_grippers_control" type="robotiq_vacuum_grippers_ctrl.py" name="robotiq_vacuum_grippers_ctrl">
