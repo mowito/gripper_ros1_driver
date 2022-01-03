@@ -34,6 +34,7 @@ class RobotiqVGripper(object):
         serviceOff = rospy.Service('/off', std_srvs.srv.SetBool, self.callbackOff)    
 
         serviceObjectDetected = rospy.Service('/grip_status', std_srvs.srv.SetBool,self.callbackGripperStatus)
+
     def _status_cb(self, msg):
         self.cur_status = msg
 
@@ -223,8 +224,7 @@ class RobotiqVGripper(object):
            rospy.loginfo("[ERROR]release failed possible communication problem")
         response = SetBoolResponse()
         response.success=True
-        return response
-    
+        return response 
 
     def callbackGripperStatus(self,req):
         returnVal= SetBoolResponse()
