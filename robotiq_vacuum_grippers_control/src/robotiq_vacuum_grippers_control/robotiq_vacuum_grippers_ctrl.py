@@ -34,6 +34,7 @@ class RobotiqVGripper(object):
         serviceOff = rospy.Service('/off', std_srvs.srv.SetBool, self.callbackOff)    
 
         serviceObjectDetected = rospy.Service('/grip_status', std_srvs.srv.SetBool,self.callbackGripperStatus)
+
     def _status_cb(self, msg):
         self.cur_status = msg
 
@@ -168,17 +169,17 @@ class RobotiqVGripper(object):
     def open(self, rdel=0.1, mrprl=100, block=False, timeout=-1):
         if self.is_opened():            
             return True
-        print("Gripper on")
+        rospy.loginfo("Gripper on")
         return self.goto(1.0, rdel, mrprl, block=block, timeout=timeout)
 
     def close(self, rdel=0.1, mrprl=100, block=False, timeout=-1):
         if self.is_closed():
             return True
-        print("Gripper off")
+        rospy.loginfo("Gripper off")
         return self.goto(-1.0, rdel, mrprl, block=block, timeout=timeout)
 
     def callbackOn(self,req):
-        print("[robotiq_vacuum_grippers_ctrl] turning gripper on ")  
+        rospy.loginfo("[robotiq_vacuum_grippers_ctrl] turning gripper on ")  
         
         self.on_count=self.on_count+1  
         self.on_count_pub.publish(self.on_count)
@@ -200,7 +201,7 @@ class RobotiqVGripper(object):
         return response
 
     def callbackOff(self,req):
-        print("[robotiq_vacuum_grippers_ctrl] turning gripper off")
+        rospy.loginfo("[robotiq_vacuum_grippers_ctrl] turning gripper off")
        
         self.off_count=self.off_count+1
         self.off_count_pub.publish(self.off_count)
@@ -223,8 +224,7 @@ class RobotiqVGripper(object):
            rospy.loginfo("[ERROR]release failed possible communication problem")
         response = SetBoolResponse()
         response.success=True
-        return response
-    
+        return response 
 
     def callbackGripperStatus(self,req):
         returnVal= SetBoolResponse()
