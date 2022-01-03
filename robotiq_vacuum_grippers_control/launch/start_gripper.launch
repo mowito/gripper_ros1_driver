@@ -5,11 +5,11 @@
 	<!-- launch the comm node -->
 	
 
-	<node pkg="robotiq_vacuum_grippers_control" type="RobotiqVacuumGrippersRtuNode.py" name="RobotiqVacuumGrippersRtuNode" args="/dev/ttyTool"/>
+	<node pkg="robotiq_vacuum_grippers_control" type="RobotiqVacuumGrippersRtuNode.py" name="RobotiqVacuumGrippersRtuNode" output="screen" respawn="true" args="/dev/ttyTool"/>
 	<!--  <rosparam command="load" file="$(find robotiq_vacuum_grippers_control)/config/ros1_bridge_config.yaml"/> -->
 
 	<!-- launch the controller -->
 
-	<node pkg="robotiq_vacuum_grippers_control" type="robotiq_vacuum_grippers_ctrl.py" name="robotiq_vacuum_grippers_ctrl" args="/dev/ttyTool"/>
+	<node pkg="robotiq_vacuum_grippers_control" output="screen" type="robotiq_vacuum_grippers_ctrl.py" name="robotiq_vacuum_grippers_ctrl" respawn="true" args="/dev/ttyTool"/>
 
 </launch>   
