@@ -21,7 +21,7 @@ class RobotiqVGripper:
 
         self.status_sub = rospy.Subscriber('RobotiqVacuumGrippersRobotInput', inputMsg,self._status_cb)
         self.cmd_pub = rospy.Publisher('RobotiqVacuumGrippersRobotOutput', outputMsg,queue_size=10)
-        self.timeoutLarge = rospy.get_param("/RobotiqVacuumGrippersRtuNode/callback_timeout")
+        self.timeoutLarge = rospy.get_param("/robotiq_vacuum_grippers_ctrl/callback_timeout")
 
         self.release_try_limit = 10
         self.timeoutSmall = 0.05
