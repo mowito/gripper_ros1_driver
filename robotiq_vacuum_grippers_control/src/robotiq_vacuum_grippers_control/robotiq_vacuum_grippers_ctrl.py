@@ -15,16 +15,17 @@ roslib.load_manifest('robotiq_vacuum_grippers_control')
 from std_msgs.msg import Int16
 
 
-class RobotiqVGripper(object):
+class RobotiqVGripper:
     def __init__(self):
         self.cur_status = None
-        self.status_sub = rospy.Subscriber('RobotiqVacuumGrippersRobotInput', inputMsg,
-                                           self._status_cb)
-        self.cmd_pub = rospy.Publisher(
-            'RobotiqVacuumGrippersRobotOutput', outputMsg,queue_size=10)
+
+        self.status_sub = rospy.Subscriber('RobotiqVacuumGrippersRobotInput', inputMsg,self._status_cb)
+        self.cmd_pub = rospy.Publisher('RobotiqVacuumGrippersRobotOutput', outputMsg,queue_size=10)
+        self.timeoutLarge = rospy.get_param("/RobotiqVacuumGrippersRtuNode/callback_timeout")
+
         self.release_try_limit = 10
         self.timeoutSmall = 0.05
-        self.timeoutLarge = 1.5
+        #self.timeoutLarge = 1.5
         self.timeoutminimum=0.005
         self.on_count_pub = rospy.Publisher('/on_service_count', Int16, queue_size=10)
         self.off_count_pub = rospy.Publisher('/off_service_count', Int16, queue_size=10)
