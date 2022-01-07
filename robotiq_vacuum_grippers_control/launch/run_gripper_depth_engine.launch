@@ -1,0 +1,9 @@
+<launch>
+	
+	<!-- launch the depth_engine -->
+  <include file="$(find depth_engine)/launch/vision_engine_node.launch" />
+
+  <!-- launch the gripper -->
+  <include file="$(find robotiq_vacuum_grippers_control)/launch/start_gripper.launch" />
+
+</launch>
