@@ -1,5 +1,0 @@
-<description>Gripper dirver</description>
-<maintainer email="utkarsh.rai60@gmail.com">Utkarsh Rai</maintainer>
-<license>Apache License 2.0</license>
-<exec_depend>rclpy</exec_depend>
-<exec_depend>std_msgs</exec_depend>
