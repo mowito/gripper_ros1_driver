@@ -2,18 +2,21 @@
 
 gripperCommunication::gripperCommunication()
 {
+	std::cout<<"inside gripperCommunication"<<std::endl;
+	RCLCPP_INFO(rclcpp::get_logger(),"adasd");
 
 	modbus_object_ = modbus_new_rtu("/dev/ttyTool", 115200, 'N', 8, 1);
 	modbus_set_slave(modbus_object_,9);
-  	modbus_connect(modbus_object_);
-
+  	
   	while(modbus_connect(modbus_object_) == -1) {
-    RCLCPP_INFO(rclcpp::get_logger("gripper_node"),"modbus connection to gripper failed. trying again");
-    rclcpp::sleep_for(std::chrono::milliseconds(500ms));    
+    std::cout<<"modbus connection to gripper failed. trying again"<<std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(500ms));   
   	}
 
+  	std::cout<<"modbus connection established"<<std::endl;
   	//activate gripper
   	writeToGripper(gripperActivatedata); 
+
 }
 
 void gripperCommunication::writeToGripper(gripperInputData &data)

@@ -27,5 +27,7 @@ public:
 private:
 	rclcpp::Node::SharedPtr node_;
 	gripperCommunication gripper_object_;
+	rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr gripper_on_server_;
+	rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr gripper_off_server_;
 
 };
