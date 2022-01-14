@@ -115,10 +115,10 @@ class RobotiqVGripper:
     def activate(self, timeout=-1):
         cmd = outputMsg()
         cmd.rACT = 1
-        cmd.rMOD = 0
+        cmd.rMOD = 1
         cmd.rGTO = 1
         cmd.rPR = 0
-        cmd.rSP = 150
+        cmd.rSP = 100
         cmd.rFR = 50
         self.cmd_pub.publish(cmd)
         r = rospy.Rate(30)
@@ -146,8 +146,9 @@ class RobotiqVGripper:
         cmd = outputMsg()
         cmd.rACT = 1
         cmd.rGTO = 1
+        cmd.rMOD = 1
         cmd.rPR = int(np.clip((13.-230.)/0.087 * press + 230., 0, 255))
-        cmd.rSP = int(np.clip(255./(0.1-0.013) * (rdel-0.013), 0, 255))
+        cmd.rSP = 100
         cmd.rFR = int(np.clip(255./(100.-30.) * (mrprl-30.), 0, 255))
         self.cmd_pub.publish(cmd)
         rospy.sleep(0.1)
