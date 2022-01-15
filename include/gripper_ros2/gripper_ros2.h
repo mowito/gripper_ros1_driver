@@ -34,6 +34,16 @@ struct gripperInputData{
 	uint8_t rSP;
 	uint8_t rFR;
 };
+struct gripperOutputData{
+	uint8_t rACT;
+	uint8_t rMOD;
+	uint8_t rGTO;
+	uint8_t rSTA;
+	uint8_t rOBJ;
+	uint8_t rFLT;
+	uint8_t rPR;
+	uint8_t rPO;
+};
 
 class gripperCommunication
 {
@@ -50,7 +60,7 @@ public:
 	/**
 	 * @brief read something from modbus interface
 	 */
-	void readFromGripper(gripperInputData &data);
+	void readFromGripper(gripperOutputData &data);
 	/**
 	 * @brief turn on gripper
 	 * @param struct containing all register input values
@@ -61,36 +71,34 @@ public:
 	 */
 	bool gripperOff();
 	/**
-	 * @brief enable gripper by kepping rACT 1 always
-	 */
-	 void enableGripper();
+	* @brief get gripped object status
+	*/
+	bool gripStatus();
 	/**
 	 * @brief utility funcn for converting struct to an array
 	 */
 	void convertGripperInputDataToArray(gripperInputData &data,int *data_temp);
-
-
-private:
-	std::shared_ptr<rclcpp::Node> node_;
-	modbus_t *modbus_object_;
+	//data struct for turning on
 	gripperInputData gripperOndata = {
 		1,//rACT
 		1,//rMOD
 		1,//rGTO
 		0,//rATR
-		255,//rPR Grip to 78% of vacuum (Max possible?)
+		0,//rPR Grip to 78% of vacuum (Max possible?)
 		100,//rSP timeout 10s
 		255//- rFr Object will be detected when vacuum level reaches 20%.
 	};
+	//data struct for activate
 	gripperInputData gripperActivatedata = {
 		1,//rACT
-		1,//rMOD
-		1,//rGTO
+		0,//rMOD
+		0,//rGTO
 		0,//rATR
 		0,//rPR Grip to 78% of vacuum (Max possible?)
-		100,//rSP timeout 1s
-		50//- rFr Object will be detected when vacuum level reaches 20%.
+		0,//rSP timeout 1s
+		0//- rFr Object will be detected when vacuum level reaches 20%.
 	};
+	//data struct for release
 	gripperInputData gripperOffdata = {
 		1,//rACT
 		1,//rMOD // try automatic for releasing
@@ -100,6 +108,12 @@ private:
 		100,//rSP timeout 10s
 		255//- rFr Object will be detected when vacuum level reaches 20%.
 	};
+
+
+private:
+	std::shared_ptr<rclcpp::Node> node_;
+	modbus_t *modbus_object_;
+
 
 
 
