@@ -2,9 +2,6 @@
 
 gripperCommunication::gripperCommunication()
 {
-	std::cout<<"inside gripperCommunication"<<std::endl;
-	RCLCPP_INFO(rclcpp::get_logger("Asd"),"adasd");
-
 	modbus_object_ = modbus_new_rtu("/dev/ttyTool", 115200, 'N', 8, 1);
 	modbus_set_slave(modbus_object_,9);
 
@@ -14,11 +11,6 @@ gripperCommunication::gripperCommunication()
   	}
 
   	std::cout<<"modbus connection established"<<std::endl;
-  	//activate gripper
-		while(1)
-  		writeToGripper(gripperActivatedata);
-
-	  std::this_thread::sleep_for(std::chrono::milliseconds(5000ms));
 
 }
 
@@ -65,4 +57,14 @@ bool gripperCommunication::gripperOn()
 bool gripperCommunication::gripperOff()
 {
 	writeToGripper(gripperOffdata);
+}
+void gripperCommunication::enableGripper()
+{
+	std::cout<<"inside enable gripper"<<std::endl;
+	while(1)
+	{
+		writeToGripper(gripperActivatedata);
+		std::this_thread::sleep_for(std::chrono::milliseconds(10ms));
+	}
+
 }

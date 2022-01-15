@@ -61,6 +61,10 @@ public:
 	 */
 	bool gripperOff();
 	/**
+	 * @brief enable gripper by kepping rACT 1 always
+	 */
+	 void enableGripper();
+	/**
 	 * @brief utility funcn for converting struct to an array
 	 */
 	void convertGripperInputDataToArray(gripperInputData &data,int *data_temp);
