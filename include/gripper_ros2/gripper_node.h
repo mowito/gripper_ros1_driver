@@ -46,5 +46,7 @@ private:
 	rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr gripper_off_server_;
   rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr grip_item_server_;
   gripperCommunication gripper_object_;
+  gripperInputData current_input_data_;
+  uint8_t timeout_ = 100;
 
 };

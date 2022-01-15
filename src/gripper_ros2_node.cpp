@@ -5,18 +5,24 @@ gripperNode::gripperNode(rclcpp::Node::SharedPtr node_ptr,rclcpp::Node::SharedPt
 																																																		server_node_(server_node_ptr),
 															 									             																				gripper_object_()
 {
+
 	gripper_on_server_=server_node_->create_service<std_srvs::srv::SetBool>("on", std::bind(&gripperNode::gripperOnCallback,this,std::placeholders::_1,std::placeholders::_2));
 	gripper_off_server_=server_node_->create_service<std_srvs::srv::SetBool>("off", std::bind(&gripperNode::gripperOffCallback,this,std::placeholders::_1,std::placeholders::_2));
 	grip_item_server_=server_node_->create_service<std_srvs::srv::SetBool>("grip_status", std::bind(&gripperNode::gripStatusCallback,this,std::placeholders::_1,std::placeholders::_2));
+
+	//Testing gripper by turning it on
+	uint8_t timeout = 10;
+	RCLCPP_INFO(node_->get_logger(),"Gripper testing, %s",(gripper_object_.gripperOn(timeout)) ? "Working" : "Not working");
 }
 
 void gripperNode::gripperOnCallback(const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
           std::shared_ptr<std_srvs::srv::SetBool::Response>      response)
 {
+
 	if(request->data)
 	{
 		RCLCPP_INFO(node_->get_logger(),"Turning on the gripper");
-		response->success = gripper_object_.gripperOn();
+		response->success = gripper_object_.gripperOn(timeout_);
 	}
 	else
 	{
@@ -61,7 +67,8 @@ void gripperNode::enableGripper()
 {
 	while(rclcpp::ok())
 	{
-		gripper_object_.writeToGripper(gripper_object_.gripperActivatedata);
+
+		//gripper_object_.writeToGripper(gripper_object_.gripperOndata);
 		std::this_thread::sleep_for(std::chrono::milliseconds(10ms));
 	}
 }

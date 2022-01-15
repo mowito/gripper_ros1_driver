@@ -65,7 +65,7 @@ public:
 	 * @brief turn on gripper
 	 * @param struct containing all register input values
 	 */
-	bool gripperOn();
+	bool gripperOn(uint8_t timeout);
 	/**
 	 * @brief turn off gripper
 	 */
