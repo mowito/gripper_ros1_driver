@@ -1,4 +1,4 @@
-#include <gripper_ros2/gripper_ros2.h>
+#include <gripper_ros2/robotiq_gripper_driver.h>
 
 gripperCommunication::gripperCommunication()
 {
@@ -28,7 +28,7 @@ void gripperCommunication::writeToGripper(gripperInputData &data)
 	mid_data_structure[5] = data.rFR;
 	for(int i=0;i<3;i++)
 		src[i] = (mid_data_structure[2*i] << 8)+ mid_data_structure[2*i+1];
-  std::cout<<"["<<src[0]<<","<<src[1]<<","<<src[2]<<"]"<<std::endl;
+  
 	modbus_write_registers(modbus_object_,0x03E8,3,src);
 }
 

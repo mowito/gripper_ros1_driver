@@ -35,21 +35,21 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_library(gripper_ros2 SHARED
-  include/gripper_ros2/gripper_ros2.h 
-  src/gripper_ros2.cpp
+add_library(robotiq_gripper_driver SHARED
+  include/gripper_ros2/robotiq_gripper_driver.h 
+  src/robotiq_gripper_driver.cpp
   )
-target_link_libraries(gripper_ros2 modbus)
-ament_target_dependencies(gripper_ros2 ${dependencies})
+target_link_libraries(robotiq_gripper_driver modbus)
+ament_target_dependencies(robotiq_gripper_driver ${dependencies})
 
-add_executable(gripper_node include/gripper_ros2/gripper_node.h src/gripper_ros2_node.cpp)
-target_link_libraries(gripper_node gripper_ros2)
-ament_target_dependencies(gripper_node ${dependencies})
+add_executable(gripper_ros2_node include/gripper_ros2/gripper_ros2_node.h src/gripper_ros2_node.cpp)
+target_link_libraries(gripper_ros2_node robotiq_gripper_driver)
+ament_target_dependencies(gripper_ros2_node ${dependencies})
 
 
 
-install(TARGETS gripper_ros2
-  gripper_node
+install(TARGETS robotiq_gripper_driver
+  gripper_ros2_node
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}
