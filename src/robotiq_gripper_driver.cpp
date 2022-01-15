@@ -18,8 +18,7 @@ void gripperCommunication::writeToGripper(gripperInputData &data)
 {
 	uint16_t src[3];
 	uint16_t mid_data_structure[6];
-	int *data_temp;
-	convertGripperInputDataToArray(data,data_temp);
+	
 	mid_data_structure[0] = data.rACT + (data.rMOD << 1) + (data.rGTO << 3) + (data.rATR << 4);
 	mid_data_structure[1] = 0;
 	mid_data_structure[2] = 0;
@@ -28,7 +27,7 @@ void gripperCommunication::writeToGripper(gripperInputData &data)
 	mid_data_structure[5] = data.rFR;
 	for(int i=0;i<3;i++)
 		src[i] = (mid_data_structure[2*i] << 8)+ mid_data_structure[2*i+1];
-  
+
 	modbus_write_registers(modbus_object_,0x03E8,3,src);
 }
 
@@ -52,18 +51,6 @@ void gripperCommunication::readFromGripper(gripperOutputData &data)
   data.rPR = data_temp[3];
   data.rPO = data_temp[4];
 
-}
-void gripperCommunication::convertGripperInputDataToArray(gripperInputData &data,int *data_temp)
-{
-	data_temp = (int*)malloc(7 * sizeof(int));
-	data_temp[0] = data.rACT;
-	data_temp[1] = data.rMOD;
-	data_temp[2] = data.rGTO;
-	data_temp[3] = data.rATR;
-	data_temp[4] = data.rPR;
-	data_temp[5] = data.rSP;
-	data_temp[6] = data.rFR;
-	data_temp[8] = 0; //for easy iteration of for loop
 }
 
 bool gripperCommunication::gripperOn(uint8_t timeout)

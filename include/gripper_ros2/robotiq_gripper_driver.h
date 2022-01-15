@@ -1,5 +1,4 @@
 #include <modbus.h>
-#include "rclcpp/rclcpp.hpp"
 
 #include <functional>
 #include <chrono>
@@ -19,8 +18,6 @@
 #include <stdexcept>
 #include <string>
 #include <array>
-#include <std_srvs/srv/set_bool.hpp>
-#include <geometry_msgs/msg/pose.h>
 #include <functional>
 using namespace std::chrono_literals;
 
@@ -74,10 +71,7 @@ public:
 	* @brief get gripped object status
 	*/
 	bool gripStatus();
-	/**
-	 * @brief utility funcn for converting struct to an array
-	 */
-	void convertGripperInputDataToArray(gripperInputData &data,int *data_temp);
+	
 	//data struct for turning on
 	gripperInputData gripperOndata = {
 		1,//rACT
@@ -111,7 +105,6 @@ public:
 
 
 private:
-	std::shared_ptr<rclcpp::Node> node_;
 	modbus_t *modbus_object_;
 
 
