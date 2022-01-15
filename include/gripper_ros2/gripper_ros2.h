@@ -52,7 +52,7 @@ public:
 	 */
 	void readFromGripper(gripperInputData &data);
 	/**
-	 * @brief turn on gripper 
+	 * @brief turn on gripper
 	 * @param struct containing all register input values
 	 */
 	bool gripperOn();
@@ -74,7 +74,7 @@ private:
 		1,//rMOD
 		1,//rGTO
 		0,//rATR
-		0,//rPR Grip to 78% of vacuum (Max possible?)
+		255,//rPR Grip to 78% of vacuum (Max possible?)
 		100,//rSP timeout 10s
 		255//- rFr Object will be detected when vacuum level reaches 20%.
 	};
@@ -84,8 +84,8 @@ private:
 		1,//rGTO
 		0,//rATR
 		0,//rPR Grip to 78% of vacuum (Max possible?)
-		10,//rSP timeout 1s
-		255//- rFr Object will be detected when vacuum level reaches 20%.
+		100,//rSP timeout 1s
+		50//- rFr Object will be detected when vacuum level reaches 20%.
 	};
 	gripperInputData gripperOffdata = {
 		1,//rACT
@@ -96,11 +96,8 @@ private:
 		100,//rSP timeout 10s
 		255//- rFr Object will be detected when vacuum level reaches 20%.
 	};
-	
-	
+
+
 
 
 };
-
-
-

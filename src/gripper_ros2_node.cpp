@@ -1,11 +1,15 @@
 #include <gripper_ros2/gripper_node.h>
 
 
-gripperNode::gripperNode(rclcpp::Node::SharedPtr node_ptr,gripperCommunication gripper_object) : node_(node_ptr),
-															 									 gripper_object_(gripper_object)
+gripperNode::gripperNode(rclcpp::Node::SharedPtr node_ptr) : node_(node_ptr),
+															 									             gripper_object_()
 {
 	gripper_on_server_=node_->create_service<std_srvs::srv::SetBool>("on", std::bind(&gripperNode::gripperOnCallback,this,std::placeholders::_1,std::placeholders::_2));
 	gripper_off_server_=node_->create_service<std_srvs::srv::SetBool>("off", std::bind(&gripperNode::gripperOffCallback,this,std::placeholders::_1,std::placeholders::_2));
+  // while(1)
+  // {
+  //   gripper_object_.gripperOn();
+  // }
 
 }
 
